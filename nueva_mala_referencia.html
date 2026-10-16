@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Nueva mala referencia{% endblock %}
+{% block content %}
+<h1 style="font-size:1.4rem;margin-bottom:1.25rem;">Nueva mala referencia</h1>
+<form method="post">
+  <div class="card">
+    <div class="form-group">
+      <label>Postulante *</label>
+      <select name="postulante_id" class="form-control" required>
+        <option value="">— Seleccionar —</option>
+        {% for p in postulantes %}
+        <option value="{{ p.id }}">{{ p.nombre_completo }} ({{ p.cedula }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Motivo</label>
+      <textarea name="motivo" class="form-control" rows="3" placeholder="Incumplimientos reiterados, etc."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Empresa relacionada</label>
+      <input type="text" name="empresa" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="2"></textarea>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Registrar referencia</button>
+</form>
+{% endblock %}

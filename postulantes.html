@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Postulantes – Actus Postulantes{% endblock %}
+
+{% block content %}
+<h1 style="font-size:1.4rem;margin-bottom:.25rem;">Postulantes</h1>
+<p style="color:#6b7280;margin-bottom:1.25rem;">Buscá, filtrá y administrá a los candidatos registrados.</p>
+
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+  <a href="{{ url_for('agregar_con_ia') }}" class="btn btn-outline"><i class="bi bi-mic"></i> Registrar con IA</a>
+  <a href="{{ url_for('nuevo_postulante') }}" class="btn btn-primary"><i class="bi bi-plus"></i> Registrar manualmente</a>
+</div>
+
+<div class="card">
+  <form method="get" style="display:grid;gap:.75rem;">
+    <div class="form-group" style="margin:0;">
+      <label>Buscar</label>
+      <input type="text" name="q" class="form-control" placeholder="Nombre o cédula" value="{{ q or '' }}">
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label>Estado de contacto</label>
+      <select name="estado" class="form-control">
+        <option value="">Todos los estados</option>
+        <option value="pendiente" {% if estado=='pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="contactado" {% if estado=='contactado' %}selected{% endif %}>Contactado</option>
+        <option value="en_proceso" {% if estado=='en_proceso' %}selected{% endif %}>En proceso</option>
+        <option value="descartado" {% if estado=='descartado' %}selected{% endif %}>Descartado</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+  </form>
+</div>
+
+{% if lista %}
+<div class="card" style="padding:0;overflow:hidden;">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Estado</th>
+          <th>Teléfono</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in lista %}
+        <tr>
+          <td>{{ p.nombre_completo }}</td>
+          <td>{{ p.cedula }}</td>
+          <td><span class="badge badge-{{ p.estado }}">{{ p.estado }}</span></td>
+          <td>{{ p.telefono or '—' }}</td>
+          <td><a href="{{ url_for('ver_postulante', id=p.id) }}">Ver ficha</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <p>No hay postulantes que coincidan con los filtros.</p>
+    <a href="{{ url_for('agregar_con_ia') }}" class="btn btn-primary"><i class="bi bi-mic"></i> Registrar con IA</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

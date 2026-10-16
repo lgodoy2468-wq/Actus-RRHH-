@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Panel principal – Actus Postulantes{% endblock %}
+
+{% block content %}
+<h1 style="font-size:1.5rem;margin-bottom:.25rem;">Panel principal</h1>
+<p style="color:#6b7280;margin-bottom:1.5rem;">Indicadores del equipo calculados en vivo desde la base de datos.</p>
+
+<!-- CTA Registro con IA -->
+<div class="card" style="background:var(--primary);color:white;border:none;">
+  <h2 style="font-size:1.1rem;margin-bottom:.5rem;">Registrar postulante con IA</h2>
+  <p style="opacity:.9;font-size:.9rem;margin-bottom:1rem;">
+    Escribí o dictá todo en un solo mensaje: nombre, cédula, vacante, corporativo, contacto y expectativa salarial. La IA arma el registro y vos confirmás.
+  </p>
+  <a href="{{ url_for('agregar_con_ia') }}" class="btn" style="background:white;color:var(--primary);">
+    <i class="bi bi-mic"></i> Abrir registro con IA
+  </a>
+</div>
+
+<!-- Buscador rápido -->
+<div class="card">
+  <h2 class="card-title">Buscador rápido por cédula</h2>
+  <form action="{{ url_for('buscar') }}" method="get" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <input type="text" name="cedula" class="form-control" placeholder="5.016.942" style="flex:1;min-width:180px;">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Buscar</button>
+  </form>
+  <p style="font-size:.8rem;color:#6b7280;margin-top:.5rem;">Mostrá la ficha completa del candidato sin salir de esta pantalla.</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card highlight">
+    <div class="label"><i class="bi bi-people"></i> POSTULANTES</div>
+    <div class="value">{{ total_postulantes }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label"><i class="bi bi-telephone"></i> CONTACTADOS</div>
+    <div class="value">{{ contactados }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label"><i class="bi bi-clock"></i> PENDIENTES</div>
+    <div class="value">{{ pendientes }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label"><i class="bi bi-shield-exclamation"></i> MALAS REF.</div>
+    <div class="value">{{ malas_ref }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label"><i class="bi bi-briefcase"></i> VACANTES ACT.</div>
+    <div class="value">{{ vacantes_act }}</div>
+  </div>
+</div>
+
+<!-- Registros recientes -->
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+    <h2 class="card-title" style="margin:0;">Registros recientes</h2>
+    <a href="{{ url_for('postulantes') }}">Ver todos</a>
+  </div>
+  {% if recientes %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Cédula</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in recientes %}
+          <tr>
+            <td>{{ p.nombre_completo }}</td>
+            <td>{{ p.cedula[:3] + '.' + p.cedula[3:6] + '.' + p.cedula[6:] if p.cedula|length > 6 else p.cedula }}</td>
+            <td><span class="badge badge-{{ p.estado }}">{{ p.estado }}</span></td>
+            <td><a href="{{ url_for('ver_postulante', id=p.id) }}">Ver</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>Todavía no hay postulantes registrados. Usá el registro con IA para crear el primero.</p>
+      <a href="{{ url_for('agregar_con_ia') }}" class="btn btn-primary"><i class="bi bi-mic"></i> Registrar con IA</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Últimos eventos -->
+<div class="card">
+  <h2 class="card-title">Últimos eventos</h2>
+  {% if ultimos_eventos %}
+    <ul style="list-style:none;font-size:.9rem;">
+      {% for e in ultimos_eventos %}
+      <li style="padding:.4rem 0;border-bottom:1px solid #f3f4f6;">
+        <strong>{{ e.accion }}</strong>
+        <span style="color:#9ca3af;font-size:.8rem;"> — {{ e.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p style="color:#6b7280;">Sin actividad todavía.</p>
+  {% endif %}
+</div>
+{% endblock %}

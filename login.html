@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Ingresar – Actus Postulantes{% endblock %}
+
+{% block auth_content %}
+<div class="login-page">
+  <div class="login-card">
+    <div class="logo-big">A</div>
+    <h1>Actus & Asociados S.A.</h1>
+    <p class="subtitle">Sistema de gestión de postulantes</p>
+
+    <h2 style="font-size:1.25rem;margin-bottom:.5rem;">Ingresar</h2>
+    <p style="color:#6b7280;font-size:.9rem;margin-bottom:1.25rem;">
+      Escribí tu nombre y apellido y la contraseña de tu rol.
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="tabs">
+      <button type="button" class="active" onclick="setModo('nombre', this)">Nombre y contraseña</button>
+      <button type="button" onclick="setModo('individual', this)">Usuario individual</button>
+    </div>
+
+    <form method="post" id="loginForm">
+      <input type="hidden" name="modo" id="modo" value="nombre">
+
+      <div id="campo-nombre">
+        <div class="form-group">
+          <label>Nombre y apellido</label>
+          <input type="text" name="nombre" class="form-control" placeholder="María López" autocomplete="username">
+        </div>
+      </div>
+
+      <div id="campo-email" style="display:none;">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" class="form-control" placeholder="usuario@actus.com.py" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:.5rem;">Ingresar</button>
+    </form>
+
+    <p style="margin-top:1.5rem;font-size:.8rem;color:#9ca3af;text-align:center;">
+      Acceso exclusivo para personal autorizado de Actus & Asociados S.A.
+    </p>
+  </div>
+</div>
+
+<script>
+  function setModo(modo, btn) {
+    document.getElementById('modo').value = modo;
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (modo === 'nombre') {
+      document.getElementById('campo-nombre').style.display = 'block';
+      document.getElementById('campo-email').style.display = 'none';
+    } else {
+      document.getElementById('campo-nombre').style.display = 'none';
+      document.getElementById('campo-email').style.display = 'block';
+    }
+  }
+</script>
+{% endblock %}

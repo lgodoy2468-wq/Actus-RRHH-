@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Administración – Actus Postulantes{% endblock %}
+{% block content %}
+<h1 style="font-size:1.4rem;margin-bottom:.25rem;">Administración</h1>
+<p style="color:#6b7280;margin-bottom:1.5rem;">Usuarios del equipo, permisos y configuración de la aplicación.</p>
+
+<div class="card">
+  <h2 class="card-title">Usuarios y permisos</h2>
+  <p style="font-size:.85rem;color:#6b7280;margin-bottom:1rem;">{{ users|length }} usuario(s)</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nombre visible</th><th>Email</th><th>Rol</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.nombre }}</td>
+          <td>{{ u.email or '—' }}</td>
+          <td><span class="badge badge-{{ u.rol }}">{{ u.rol|capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Nuevo usuario</h2>
+  <form method="post" action="{{ url_for('crear_usuario') }}">
+    <div class="form-group">
+      <label>Nombre visible *</label>
+      <input type="text" name="nombre" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label>Email (opcional)</label>
+      <input type="email" name="email" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Contraseña *</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label>Rol</label>
+      <select name="rol" class="form-control">
+        <option value="reclutador">Reclutador</option>
+        <option value="admin">Administrador</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear usuario</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Configuración de la aplicación</h2>
+  <form method="post" action="{{ url_for('guardar_config') }}">
+    <div class="form-group">
+      <label>Nombre de la organización</label>
+      <input type="text" name="nombre_organizacion" class="form-control" value="{{ nombre_org }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar configuración</button>
+  </form>
+</div>
+{% endblock %}

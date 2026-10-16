@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Vacantes – Actus Postulantes{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem;">
+  <div>
+    <h1 style="font-size:1.4rem;">Vacantes</h1>
+    <p style="color:#6b7280;font-size:.9rem;">Los nombres de este catálogo son los que reconoce el asistente de IA.</p>
+  </div>
+  <a href="{{ url_for('nueva_vacante') }}" class="btn btn-primary"><i class="bi bi-plus"></i> Nueva vacante</a>
+</div>
+
+{% if lista %}
+<div class="card" style="padding:0;">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Puesto</th><th>Estado</th><th>Fecha</th></tr></thead>
+      <tbody>
+        {% for v in lista %}
+        <tr>
+          <td>{{ v.nombre }}</td>
+          <td><span class="badge badge-activa">{{ v.estado }}</span></td>
+          <td>{{ v.created_at.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card"><div class="empty-state"><p>No hay vacantes registradas todavía.</p></div></div>
+{% endif %}
+{% endblock %}

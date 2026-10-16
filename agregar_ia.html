@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Añadir postulante con IA – Actus Postulantes{% endblock %}
+
+{% block content %}
+<h1 style="font-size:1.4rem;margin-bottom:.35rem;">Añadir postulante con IA</h1>
+<p style="color:#6b7280;margin-bottom:1.5rem;">
+  Escribí o dictá todos los datos en un solo mensaje; la IA arma el registro y vos confirmás.
+</p>
+
+{% if modo == 'entrada' or not modo %}
+<!-- MODO ENTRADA -->
+<div class="ia-box">
+  <button type="button" class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Tocar para dictar">
+    <i class="bi bi-mic" id="micIcon"></i>
+  </button>
+  <p style="text-align:center;font-weight:500;margin-bottom:.25rem;">Tocar para dictar por voz</p>
+  <p style="text-align:center;font-size:.85rem;color:#6b7280;margin-bottom:.75rem;">
+    Dictá con naturalidad: nombre, cédula, vacante, corporativo, contacto, expectativa salarial.
+  </p>
+  <div style="text-align:center;">
+    <span id="voiceStatus" class="badge" style="background:#e5e7eb;color:#6b7280;">Inactivo</span>
+  </div>
+</div>
+
+<form method="post" id="formIA">
+  <input type="hidden" name="accion" value="interpretar">
+  <div class="form-group">
+    <label>Datos del postulante (editable)</label>
+    <textarea name="texto" id="textoIA" class="form-control" rows="6"
+      placeholder="Ejemplo: Quiero que añadas a un nuevo postulante con nombre de Juan José Salazar con número de cédula 7.648.300 con expectativa salarial de 1789000 para la vacancia de cajero ya fue contactado y desde el corporativo de Junior Godoy">{{ texto_original or '' }}</textarea>
+  </div>
+  <p style="font-size:.8rem;color:#6b7280;margin-bottom:1rem;">
+    Podés escribir el mensaje o corregir el texto dictado antes de procesar. El audio no se guarda.
+  </p>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <button type="button" class="btn btn-outline" onclick="document.getElementById('textoIA').value=''">
+      <i class="bi bi-x-circle"></i> Limpiar
+    </button>
+    <button type="submit" class="btn btn-primary" id="btnInterpretar">
+      <i class="bi bi-stars"></i> Interpretar datos
+    </button>
+  </div>
+</form>
+
+{% else %}
+<!-- MODO CONFIRMACIÓN -->
+<div class="resumen-box">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;color:var(--primary);">Resumen del postulante</h2>
+
+  <div class="row">
+    <span class="label">NOMBRE</span>
+    <span class="value">{{ datos.nombre_completo or '—' }}</span>
+  </div>
+  <div class="row">
+    <span class="label">CÉDULA</span>
+    <span class="value">{{ datos.cedula or '—' }}</span>
+  </div>
+  <div class="row">
+    <span class="label">VACANTE</span>
+    <span class="value">{{ datos.vacante or '—' }}</span>
+  </div>
+  <div class="row">
+    <span class="label">CORPORATIVO</span>
+    <span class="value">{{ datos.corporativo or '—' }}</span>
+  </div>
+  <div class="row">
+    <span class="label">CONTACTADO POR</span>
+    <span class="value">{{ datos.contacto_persona or '—' }}</span>
+  </div>
+  <div class="row">
+    <span class="label">TELÉFONO / WHATSAPP</span>
+    <span class="value">{{ datos.telefono or '—' }}</span>
+  </div>
+  <div class="row">
+    <span class="label">ESTADO</span>
+    <span class="value">{{ 'Ya contactado' if datos.ya_contactado else (datos.estado or 'pendiente') }}</span>
+  </div>
+  <div class="row">
+    <span class="label">EXPECTATIVA SALARIAL</span>
+    <span class="value">
+      {% if datos.expectativa_importe %}
+        Gs. {{ "{:,.0f}".format(datos.expectativa_importe).replace(",", ".") }}
+      {% else %}
+        —
+      {% endif %}
+    </span>
+  </div>
+  <div class="row">
+    <span class="label">MALA REFERENCIA</span>
+    <span class="value">{{ datos.mala_referencia }}</span>
+  </div>
+
+  {% if datos.advertencias %}
+    <div style="margin-top:1rem;">
+      <p style="color:var(--warning);font-weight:500;">Necesita tu aclaración</p>
+      {% for adv in datos.advertencias %}
+        <div class="aclaracion">{{ adv }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if not vacante_match and datos.vacante %}
+    <div class="aclaracion">
+      No encontré la vacante «{{ datos.vacante }}» entre las registradas. Creala en el apartado Vacantes o elegí una existente.
+    </div>
+  {% endif %}
+  {% if not corp_match and datos.corporativo %}
+    <div class="aclaracion">
+      No encontré el corporativo «{{ datos.corporativo }}» entre los registrados. Regístralo en el apartado Corporativos o elegí uno existente.
+    </div>
+  {% endif %}
+</div>
+
+<form method="post" style="margin-top:1.25rem;">
+  <input type="hidden" name="accion" value="confirmar">
+  <input type="hidden" name="nombre_completo" value="{{ datos.nombre_completo or '' }}">
+  <input type="hidden" name="cedula" value="{{ datos.cedula or '' }}">
+  <input type="hidden" name="telefono" value="{{ datos.telefono or '' }}">
+  <input type="hidden" name="estado" value="{{ 'contactado' if datos.ya_contactado else 'pendiente' }}">
+  <input type="hidden" name="expectativa_importe" value="{{ datos.expectativa_importe or '' }}">
+  <input type="hidden" name="mala_referencia" value="{{ datos.mala_referencia }}">
+  <input type="hidden" name="motivo_referencia" value="{{ datos.motivo_referencia or '' }}">
+  <input type="hidden" name="empresa_referencia" value="{{ datos.empresa_referencia or '' }}">
+
+  <div class="form-group">
+    <label>Elegí una vacante</label>
+    <select name="vacante_id" class="form-control">
+      <option value="">— Sin vacante —</option>
+      {% for v in vacantes %}
+        <option value="{{ v.id }}" {% if vacante_match and vacante_match.id == v.id %}selected{% endif %}>
+          {{ v.nombre }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Elegí un corporativo</label>
+    <select name="corporativo_id" class="form-control">
+      <option value="">— Sin corporativo —</option>
+      {% for c in corporativos %}
+        <option value="{{ c.id }}" {% if corp_match and corp_match.id == c.id %}selected{% endif %}>
+          {{ c.nombre }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:1.25rem;">
+    <a href="{{ url_for('agregar_con_ia') }}" class="btn btn-outline">Descartar / Dictar otro</a>
+    <button type="submit" class="btn btn-primary" {% if not datos.nombre_completo or not datos.cedula %}disabled{% endif %}>
+      Confirmar y registrar
+    </button>
+  </div>
+  {% if not datos.nombre_completo or not datos.cedula %}
+    <p style="color:var(--warning);font-size:.85rem;margin-top:.5rem;">
+      Resolvé las aclaraciones (nombre y cédula) para habilitar el guardado.
+    </p>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let recognition = null;
+  let isRecording = false;
+
+  function toggleVoice() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Tu navegador no soporta reconocimiento de voz. Escribí los datos manualmente.');
+      return;
+    }
+
+    if (isRecording) {
+      recognition.stop();
+      isRecording = false;
+      document.getElementById('voiceBtn').classList.remove('recording');
+      document.getElementById('voiceStatus').textContent = 'Inactivo';
+      document.getElementById('voiceStatus').style.background = '#e5e7eb';
+      document.getElementById('voiceStatus').style.color = '#6b7280';
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'es-PY';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      isRecording = true;
+      document.getElementById('voiceBtn').classList.add('recording');
+      document.getElementById('voiceStatus').textContent = 'Escuchando…';
+      document.getElementById('voiceStatus').style.background = '#fee2e2';
+      document.getElementById('voiceStatus').style.color = '#b91c1c';
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      const ta = document.getElementById('textoIA');
+      // Evitar duplicar: solo agregar si no está ya
+      if (!ta.value.includes(transcript)) {
+        ta.value = (ta.value ? ta.value + ' ' : '') + transcript;
+      }
+    };
+
+    recognition.onerror = (e) => {
+      console.error(e);
+      isRecording = false;
+      document.getElementById('voiceBtn').classList.remove('recording');
+      document.getElementById('voiceStatus').textContent = 'Error';
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      document.getElementById('voiceBtn').classList.remove('recording');
+      document.getElementById('voiceStatus').textContent = 'Inactivo';
+      document.getElementById('voiceStatus').style.background = '#e5e7eb';
+      document.getElementById('voiceStatus').style.color = '#6b7280';
+    };
+
+    recognition.start();
+  }
+
+  // Prevenir doble envío
+  document.getElementById('formIA')?.addEventListener('submit', function() {
+    document.getElementById('btnInterpretar').disabled = true;
+    document.getElementById('btnInterpretar').textContent = 'Procesando…';
+  });
+</script>
+{% endblock %}

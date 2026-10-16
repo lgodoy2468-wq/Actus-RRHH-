@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ p.nombre_completo }}{% endblock %}
+{% block content %}
+<h1 style="font-size:1.4rem;margin-bottom:1.25rem;">Editar postulante</h1>
+<form method="post">
+  <div class="card">
+    <div class="form-group">
+      <label>Cédula (no editable)</label>
+      <input type="text" class="form-control" value="{{ p.cedula }}" disabled>
+    </div>
+    <div class="form-group">
+      <label>Nombre completo *</label>
+      <input type="text" name="nombre_completo" class="form-control" required value="{{ p.nombre_completo }}">
+    </div>
+    <div class="form-group">
+      <label>Teléfono</label>
+      <input type="text" name="telefono" class="form-control" value="{{ p.telefono or '' }}">
+    </div>
+    <div class="form-group">
+      <label>Estado</label>
+      <select name="estado" class="form-control">
+        <option value="pendiente" {% if p.estado=='pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="contactado" {% if p.estado=='contactado' %}selected{% endif %}>Contactado</option>
+        <option value="en_proceso" {% if p.estado=='en_proceso' %}selected{% endif %}>En proceso</option>
+        <option value="descartado" {% if p.estado=='descartado' %}selected{% endif %}>Descartado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="3">{{ p.observaciones or '' }}</textarea>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Guardar cambios</button>
+  <a href="{{ url_for('ver_postulante', id=p.id) }}" class="btn btn-outline">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>{% block title %}Actus Postulantes{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+  {% if current_user.is_authenticated %}
+  <div class="app-shell">
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-circle">A</div>
+          <div>
+            Actus & Asociados S.A.
+            <small>Sistema de gestión de postulantes</small>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <a href="{{ url_for('panel') }}" class="{% if request.endpoint == 'panel' %}active{% endif %}">
+          <i class="bi bi-grid"></i> Inicio
+        </a>
+        <a href="{{ url_for('buscar') }}" class="{% if request.endpoint == 'buscar' %}active{% endif %}">
+          <i class="bi bi-search"></i> Buscador
+        </a>
+        <a href="{{ url_for('postulantes') }}" class="{% if request.endpoint in ['postulantes','ver_postulante','nuevo_postulante','agregar_con_ia','editar_postulante'] %}active{% endif %}">
+          <i class="bi bi-people"></i> Postulantes
+        </a>
+        <a href="{{ url_for('malas_referencias') }}" class="{% if 'malas' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-shield-exclamation"></i> Malas referencias
+        </a>
+        <a href="{{ url_for('vacantes') }}" class="{% if 'vacante' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-briefcase"></i> Vacantes
+        </a>
+        <a href="{{ url_for('corporativos') }}" class="{% if 'corporativo' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-building"></i> Corporativos
+        </a>
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('admin') }}" class="{% if request.endpoint == 'admin' %}active{% endif %}">
+          <i class="bi bi-gear"></i> Administración
+        </a>
+        {% endif %}
+        <div class="logout">
+          <a href="{{ url_for('logout') }}">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menú">
+          <i class="bi bi-list"></i>
+        </button>
+        <span class="brand">Actus Postulantes</span>
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <span style="font-size:.85rem;color:#6b7280;">{{ current_user.nombre }}</span>
+          <a href="{{ url_for('agregar_con_ia') }}" class="btn btn-primary btn-sm" title="Registro con IA">
+            <i class="bi bi-mic"></i> IA
+          </a>
+        </div>
+      </header>
+
+      <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="{{ url_for('panel') }}" class="{% if request.endpoint == 'panel' %}active{% endif %}">
+      <i class="bi bi-grid" style="font-size:1.2rem;"></i> Inicio
+    </a>
+    <a href="{{ url_for('buscar') }}" class="{% if request.endpoint == 'buscar' %}active{% endif %}">
+      <i class="bi bi-search" style="font-size:1.2rem;"></i> Buscar
+    </a>
+    <a href="{{ url_for('agregar_con_ia') }}" class="{% if request.endpoint == 'agregar_con_ia' %}active{% endif %}">
+      <i class="bi bi-mic" style="font-size:1.2rem;"></i> Dictar
+    </a>
+    <a href="{{ url_for('postulantes') }}" class="{% if request.endpoint == 'postulantes' %}active{% endif %}">
+      <i class="bi bi-people" style="font-size:1.2rem;"></i> Postulantes
+    </a>
+  </nav>
+  {% else %}
+    {% block auth_content %}{% endblock %}
+  {% endif %}
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('show');
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

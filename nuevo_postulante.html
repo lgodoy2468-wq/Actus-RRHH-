@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Nuevo postulante – Actus Postulantes{% endblock %}
+
+{% block content %}
+<h1 style="font-size:1.4rem;margin-bottom:1.25rem;">Registrar postulante manualmente</h1>
+
+<form method="post">
+  <div class="card">
+    <div class="form-group">
+      <label>Cédula *</label>
+      <input type="text" name="cedula" class="form-control" required placeholder="7.648.300" value="{{ form.cedula if form else '' }}">
+    </div>
+    <div class="form-group">
+      <label>Nombre completo *</label>
+      <input type="text" name="nombre_completo" class="form-control" required placeholder="Juan José Salazar" value="{{ form.nombre_completo if form else '' }}">
+    </div>
+    <div class="form-group">
+      <label>Teléfono / WhatsApp</label>
+      <input type="text" name="telefono" class="form-control" placeholder="0981 123 456">
+    </div>
+    <div class="form-group">
+      <label>Vacante</label>
+      <select name="vacante_id" class="form-control">
+        <option value="">— Seleccionar —</option>
+        {% for v in vacantes %}
+        <option value="{{ v.id }}">{{ v.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Corporativo</label>
+      <select name="corporativo_id" class="form-control">
+        <option value="">— Seleccionar —</option>
+        {% for c in corporativos %}
+        <option value="{{ c.id }}">{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Estado</label>
+      <select name="estado" class="form-control">
+        <option value="pendiente">Pendiente</option>
+        <option value="contactado">Contactado</option>
+        <option value="en_proceso">En proceso</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Expectativa salarial (Gs.)</label>
+      <input type="text" name="expectativa" class="form-control" placeholder="1.789.000">
+    </div>
+    <div class="form-group">
+      <label>¿Tiene mala referencia?</label>
+      <select name="mala_referencia" class="form-control">
+        <option value="No">No</option>
+        <option value="Si">Sí</option>
+        <option value="Pendiente">Pendiente</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Motivo de la referencia (si aplica)</label>
+      <input type="text" name="motivo_referencia" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Empresa de la referencia</label>
+      <input type="text" name="empresa_referencia" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="3"></textarea>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Guardar postulante</button>
+</form>
+{% endblock %}
